@@ -9,6 +9,7 @@ float pow2( float v )
  */
 float Geometry( float NdotL, float NdotH, float NdotV, float VdotH, float roughness )
 {
+    // Cook-Torrance:
     //float NH2 = 2.0 * NdotH;
     //float g1 = (NH2 * NdotV) / VdotH;
     //float g2 = (NH2 * NdotL) / VdotH;
@@ -16,14 +17,28 @@ float Geometry( float NdotL, float NdotH, float NdotV, float VdotH, float roughn
 
     // Modified Schlick (from UE4):
     float k = pow2(roughness + 1.0) / 8.0;
-    float g1 = NdotL / ((NdotL)*(1.0-k)+k);
-    float g2 = NdotV / ((NdotV)*(1.0-k)+k);
-    return g1*g2 / (NdotV*NdotL);
+    float g1 = NdotL / (NdotL*(1.0-k)+k);
+    float g2 = NdotV / (NdotV*(1.0-k)+k);
+    return (g1*g2) / (NdotV*NdotL);
+
+    // SmithGGX (from Frostbite):
+    //float r2 = roughness * roughness;
+    //float v = NdotL * sqrt((-NdotV * r2 + NdotV) * NdotV + r2);
+    //float l = NdotV * sqrt((-NdotL * r2 + NdotL) * NdotL + r2);
+    //return 0.5 / (v+l);
 
     // Schlick-Smith (from BlackOps):
     //float a = pow(8192.0, 1.0-roughness);
     //float k = 2.0 / sqrt(PI*(a+2.0));
     //return 1.0 / ((NdotL*(1.0-k)+k) * (NdotV*(1.0-k)+k));
+
+    // Beckmann/Smith:
+    //float r2 = roughness * roughness;
+    //float vc = NdotV/(r2*sqrt(1.0-NdotV*NdotV));
+    //float gv = vc < 1.6 ? ((3.535*vc+2.181*vc*vc)/(1.0+2.276*vc+2.577*vc*vc)) : 1.0;
+    //float lc = NdotL/(r2*sqrt(1.0-NdotL*NdotL));
+    //float gl = lc < 1.6 ? ((3.535*lc+2.181*lc*lc)/(1.0+2.276*lc+2.577*lc*lc)) : 1.0;
+    //return gl*gv;
 }
 
 /** Attenuation of the light due to (statistical) distribution of microfacets.
@@ -31,10 +46,15 @@ float Geometry( float NdotL, float NdotH, float NdotV, float VdotH, float roughn
 float Distribution( float roughness, float NdotH )
 {
     // GGX/Trowbridge-Reitz:
-    float r = roughness * roughness * roughness * roughness;
-    return r / (PI * pow2(pow2(NdotH)*(r-1.0)+1.0));
+    float r4 = roughness * roughness * roughness * roughness;
+    return r4 / (PI * pow2(pow2(NdotH)*(r4-1.0)+1.0));
 
-    // Blinn-Phong: (from BlackOps)
+    // GGX (from Frostbite):
+    //float r2 = roughness * roughness;
+    //float f = (NdotH * r2 - NdotH) * NdotH + 1.0;
+    //return (r2 / (f*f))/PI;
+
+    // Blinn-Phong (from BlackOps):
     //float a = pow(8192.0, 1.0-roughness);
     //return ((a+2.0)/8.0)*pow(NdotH, a);
 }

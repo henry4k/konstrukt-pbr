@@ -1,4 +1,3 @@
-#version 120
 varying vec3 TangentWS;
 varying vec3 BitangentWS;
 varying vec3 NormalWS;

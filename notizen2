@@ -1,0 +1,21 @@
+which means that the sum of all the BRDF weights across the hemisphere has to
+be smaller or equal to one
+"for all incoming light rays the sum of all the outgoing brdf weights
+multiplied by the cosine of the angle must be smaller or equal to one".
+
+L = radiance
+Φ = radiant flux (in Watt) - total amount of enegery emitted by a light source
+solid angle = Raumwinkel = Omega = ω = It's a way to measure how large an object appears to an observer looking from a point.
+ωi = light dir
+ωo = view dir
+I = radiant intensity = flux (Watt) per solid angle
+cosθ = NdotL
+θ = theta = Winkel zwischen N und L
+delta = winkel zwischen N und H
+A = area affected by light = hemisphere
+
+kd = einfallendes licht
+ks = reflektierter anteil des einfallenden lichts
+
+Flambert = diffuse komponente
+Fcook-torrance = reflektierende komponente

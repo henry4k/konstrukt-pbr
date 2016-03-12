@@ -1,0 +1,7 @@
+{
+   "type": "scenario",
+   "dependencies":
+   [
+       "base-game"
+   ]
+}

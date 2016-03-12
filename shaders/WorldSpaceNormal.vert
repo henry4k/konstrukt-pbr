@@ -1,4 +1,5 @@
 #version 120
+
 uniform mat4 Model;
 
 attribute vec3 VertexNormal;

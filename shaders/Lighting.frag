@@ -1,6 +1,8 @@
 #version 120
 
-vec3 WorldSpaceNormal( vec3 tsNormal );
+vec3 CalcSphereLight( const in vec3 normal,
+                      const in vec3 cameraDirectionTS );
+
 vec3 CalcSpecularReflection( const in vec3 specularFactor,
                              const in float roughness,
                              const in float NdotL,
@@ -8,13 +10,10 @@ vec3 CalcSpecularReflection( const in vec3 specularFactor,
                              const in float NdotV,
                              const in float VdotH ); // from Specular.frag
 
-varying vec3 LightDirectionTS;
-varying vec3 HalfWayDirectionTS;
 varying vec3 CameraDirectionTS;
 
 const vec3 LightColor = vec3(1.0, 1.0, 1.0);
 
-uniform samplerCube EnvironmentSampler;
 
 /**
  * @param specularFactor (or surfaceReflectionFactor)
@@ -37,18 +36,18 @@ vec3 CalcLightContribution( vec3 normal,
                             float roughness )
 {
     normal = normalize(normal);
-    vec3 lightDirectionTS  = normalize(LightDirectionTS);
+    vec3 cameraDirectionTS = normalize(CameraDirectionTS);
+
+    vec3 lightDirectionTS = CalcSphereLight(normal, cameraDirectionTS);
 
     // do the lighting calculation for each fragment.
     float NdotL = max(dot(normal, lightDirectionTS), 0.0);
 
     if(NdotL > 0.0)
     {
-        roughness = max(roughness, 0.01);
-
+        roughness = max(roughness, 0.02);
         // calculate intermediary values
-        vec3 halfWayDirectionTS = normalize(HalfWayDirectionTS);
-        vec3 cameraDirectionTS  = normalize(CameraDirectionTS);
+        vec3 halfWayDirectionTS = normalize(cameraDirectionTS + lightDirectionTS);
         float NdotH = max(0.0, dot(normal, halfWayDirectionTS));
         float NdotV = max(0.0, dot(normal, cameraDirectionTS)); // note: this could also be NdotL, which is the same value
         float VdotH = max(0.0, dot(cameraDirectionTS, halfWayDirectionTS));
@@ -59,14 +58,20 @@ vec3 CalcLightContribution( vec3 normal,
                                                          NdotH,
                                                          NdotV,
                                                          VdotH);
+        //float a = roughness * roughness;
+        //float ggx = 1.0 / (3.14159*a*a);
+        //a = ggx/a;
+        //a = a*a;
 
         // diffuse reflection:
         // In order for light to be diffused, light must first penetrate the
         // surface:  This is easy to enforce in a shading system: one simply
         // subtracts reflected light before allowing the diffuse shading to occur.
-        vec3 diffuseReflection = (1.0 - specularReflection) * diffuseFactor;
+        //vec3 diffuseReflection = (1.0 - specularReflection) * diffuseFactor;
+        vec3 diffuseReflection = diffuseFactor * (1.0 - specularFactor);
+        //vec3 diffuseReflection = diffuseFactor;
 
-        return LightColor * NdotL * (diffuseReflection + specularReflection);
+        return LightColor * NdotL * (specularReflection+diffuseReflection);
     }
     else
     {
