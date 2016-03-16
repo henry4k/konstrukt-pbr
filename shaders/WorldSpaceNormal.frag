@@ -1,6 +1,8 @@
-varying vec3 TangentWS;
-varying vec3 BitangentWS;
-varying vec3 NormalWS;
+#version 150
+
+in vec3 TangentWS;
+in vec3 BitangentWS;
+in vec3 NormalWS;
 
 vec3 WorldSpaceNormal( vec3 tsNormal )
 {

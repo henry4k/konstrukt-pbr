@@ -2,15 +2,12 @@ local Vec        = require 'core/Vector'
 local Mat4       = require 'core/Matrix4'
 local Control    = require 'core/Control'
 --local GlobalControls = require 'core/GlobalControls'
-local Texture    = require 'core/graphics/Texture'
 local SetupUtils = require 'base-game/SetupUtils'
 local Background = require 'base-game/Background'
 local GhostActor = require 'base-game/world/GhostActor'
-local Model      = require(here('Orbot/init'))
+local Model      = require(here('Sphere/init'))
 local Programs   = require(here('shaders/Programs'))
 local DefaultShaderProgramSet = require 'base-game/shaders/DefaultShaderProgramSet'
-
-local environmentTexture = Texture:load{target='cube', fileName=here('environment/%s.png')}
 
 local function SetCustomShaderPrograms()
     for name, program in pairs(Programs) do
@@ -46,12 +43,9 @@ local function CreateUniformChart( modelWorld )
         model:setTransformation(Mat4():translate(position))
         model:setUniform('Roughness', x/xcount, 'float')
         model:setUniform('Metallic',  y/ycount, 'float')
-        model:setTexture(4, environmentTexture)
-        model:setUniform('EnvironmentSampler', 4, 'int')
     end
     end
 end
-
 
 local function start()
     local renderTarget = require 'core/graphics/DefaultRenderTarget'

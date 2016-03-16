@@ -1,17 +1,17 @@
-#version 120
+#version 150
 
-//varying float PlaneOffsetDotNormal;
-varying vec3 PositionTS;
-varying vec3 PlaneOriginTS;
-varying vec3 PlaneTangentTS;
-varying vec3 PlaneBitangentTS;
-varying vec3 PlaneNormalTS;
+//in float PlaneOffsetDotNormal;
+in vec3 PositionTS;
+in vec3 PlaneOriginTS;
+in vec3 PlaneTangentTS;
+in vec3 PlaneBitangentTS;
+in vec3 PlaneNormalTS;
 
-const vec2 LightSize = vec2(2.0, 1.0);
+const vec2 LightSize = vec2(2, 1);
 
 uniform sampler2D LightSampler;
 
-float CalcIntersectionDistance( const int vec3 direction )
+float CalcIntersectionDistance( const in vec3 direction )
 {
     return dot(PlaneOriginTS-PositionTS, PlaneNormalTS) /
            dot(direction, PlaneNormalTS);
@@ -32,8 +32,8 @@ bool TryGetAreaUV( const in vec3 direction, out vec2 uv )
     vec2 planeCoords = GetPlaneCoordinates(direction, intersectionDistance);
     uv = planeCoords / LightSize;
     return intersectionDistance > 0 &&
-           all(bvec4(greaterThanEqual(uv, vec2(0.0, 0.0)),
-                        lessThanEqual(uv, vec2(1.0, 1.0))));
+           all(bvec4(greaterThanEqual(uv, vec2(0, 0)),
+                        lessThanEqual(uv, vec2(1, 1))));
 }
 
 vec3 GetAreaLightColor( vec3 direction )
@@ -45,8 +45,8 @@ vec3 GetAreaLightColor( vec3 direction )
     vec2 uv = vec2(dot(intersectionOffset, PlaneTangentTS),
                    dot(intersectionOffset, PlaneBitangentTS)) / LightSize;
     if(intersectionDistance > 0 &&
-           all(bvec4(greaterThanEqual(uv, vec2(0.0, 0.0)),
-                        lessThanEqual(uv, vec2(1.0, 1.0)))))
+           all(bvec4(greaterThanEqual(uv, vec2(0, 0)),
+                        lessThanEqual(uv, vec2(1, 1)))))
     {
         return vec3(1,1,1) * intersectionDistance * 0.5;
     }
@@ -59,7 +59,7 @@ vec3 GetAreaLightColor( vec3 direction )
     if(TryGetAreaUV(direction, uv))
         return texture2D(LightSampler, uv).rgb;
     else
-        return vec3(0.0, 0.0, 0.0);
+        return vec3(0, 0, 0);
 }
 
 vec3 CalcAreaLightDiffuse( vec3 direction )

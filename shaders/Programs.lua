@@ -5,6 +5,7 @@ local brdf = ShaderProgram:load(here('Lighting.vert'),
                                 here('SphereLight.vert'),
                                 here('SphereLight.frag'),
                                 here('Specular.frag'),
+                                here('DistanceAttenuation.frag'),
                                 here('Brdf.vert'),
                                 here('Brdf.frag'))
 

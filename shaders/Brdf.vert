@@ -1,16 +1,17 @@
-#version 120
+#version 150
+
 void CalcLight(); // from Lighting.vert
 
 uniform mat4 ModelViewProjection;
 
-attribute vec3 VertexPosition;
-attribute vec2 VertexTexCoord;
+in vec3 VertexPosition;
+in vec2 VertexTexCoord;
 
-varying vec2 TexCoord;
+out vec2 TexCoord;
 
 void main()
 {
-    gl_Position = ModelViewProjection * vec4(VertexPosition, 1.0);
+    gl_Position = ModelViewProjection * vec4(VertexPosition, 1);
     TexCoord    = VertexTexCoord;
     CalcLight();
 }
