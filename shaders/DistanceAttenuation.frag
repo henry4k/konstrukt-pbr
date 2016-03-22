@@ -1,7 +1,7 @@
 #version 150
 
-const float LightMaxDistance = 4;
-const float ProximitnityAttenuation = 10;
+const float LightMaxDistance = 100;
+const float ProximitnityAttenuation = 0;
 
 float GetDistanceAttenuation( const in float lightDistance )
 {
