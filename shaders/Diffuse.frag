@@ -1,18 +1,7 @@
-#version 150
+#version 120
 
-#ifdef FROSTBITE
-// Half angle formula :
-// cos (2 theta ) = 2 cos ^2( theta ) - 1
-float cosD = sqrt (( dot (V , L ) + 1.0 f ) * 0.5) ;
-float NdotV = saturate ( dot ( data . worldNormal , V ) ) ;
-float NdotL_sat = saturate ( NdotL ) ;
-// Disney diffuse BRDF operates in linear roughness ,
-// which is the sqrt of the GGX alpha roughness term
-float fd90 = 0.5 + 2 * cosD * cosD * sqrt ( data . roughness ) ;
-float lightScatter = 1 + ( fd90 -1) * pow (1 - NdotL_sat , 5) ;
-float viewScatter = 1 + ( fd90 -1) * pow (1 - NdotV , 5) ;
-f = lightScatter * viewScatter ;
-#endif
+const float PI = 3.14159;
+const float DiffuseNormalizationFactor = 1 / PI;
 
 /**
  * Schlicks approximation:
@@ -46,7 +35,7 @@ vec3 CalcDiffuseReflection( const in vec3 diffuseFactor,
     float fd90 = 0.5 + 2 * cosD * cosD * sqrt(roughness) ;
     float l = 1 + (fd90-1) * pow(1-NdotLs, 5);
     float v = 1 + (fd90-1) * pow(1-NdotVs, 5);
-    float fd = l*v;
+    float fd = l * v * DiffuseNormalizationFactor;
 
     return diffuseFactor * fd;
 }

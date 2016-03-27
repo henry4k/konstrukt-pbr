@@ -1,17 +1,35 @@
-#version 150
+#version 120
 
-void CalcSphereLight( const in mat3 csToTS );
+void CalcSphereLight( out vec3 lightPositionTS,
+                      const in vec3 lightPositionWS,
+                      const in mat3 csToTS ); // from SphereLight.vert
 
-in vec3 VertexPosition;
-in vec3 VertexNormal;
-in vec3 VertexTangent;
-in vec3 VertexBitangent;
 
-out vec3 CameraDirectionTS;
+const int AmbientLightType     = 0;
+const int DirectionalLightType = 1;
+const int SphereLightType      = 2;
+const int TubeLightType        = 3;
+const int SpotLightType        = 4;
+
+const int MaxLightCount = 4;
+
 
 uniform mat4 View;
 uniform mat4 ModelView;
-uniform float Time;
+uniform int LightCount;
+uniform int  LightType[MaxLightCount];
+uniform vec3 LightPositionWS[MaxLightCount];
+
+
+attribute vec3 VertexPosition;
+attribute vec3 VertexNormal;
+attribute vec3 VertexTangent;
+attribute vec3 VertexBitangent;
+
+
+varying vec3 LightPositionTS[MaxLightCount];
+varying vec3 CameraDirectionTS;
+
 
 void CalcLight()
 {
@@ -28,5 +46,11 @@ void CalcLight()
     vec3 cameraDirectionCS = normalize(-positionCS);
     CameraDirectionTS = csToTS * cameraDirectionCS;
 
-    CalcSphereLight(csToTS);
+    for(int i = 0; i < LightCount; i++)
+    {
+        if(LightType[i] == SphereLightType)
+            CalcSphereLight(LightPositionTS[i],
+                            LightPositionWS[i],
+                            csToTS);
+    }
 }

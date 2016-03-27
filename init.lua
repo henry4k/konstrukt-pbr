@@ -1,11 +1,13 @@
+local engine     = require 'engine'
 local Vec        = require 'core/Vector'
 local Mat4       = require 'core/Matrix4'
+local Timer      = require 'core/Timer'
 local Control    = require 'core/Control'
 --local GlobalControls = require 'core/GlobalControls'
 local SetupUtils = require 'base-game/SetupUtils'
 local Background = require 'base-game/Background'
 local GhostActor = require 'base-game/world/GhostActor'
-local Model      = require(here('Sphere/init'))
+local Model      = require(here('Orbot/init'))
 local Programs   = require(here('shaders/Programs'))
 local DefaultShaderProgramSet = require 'base-game/shaders/DefaultShaderProgramSet'
 
@@ -33,6 +35,62 @@ local function UniformSlider( name, start, model )
 end
 ]]
 
+local Lights =
+{
+    {
+      type = 'sphere',
+      position = Vec(-1,0.5,2),
+      value = Vec(1,0,0),
+      radius = 0.4,
+      range = 10
+    },
+    {
+      type = 'sphere',
+      position = Vec(1,0.5,2),
+      value = Vec(0,1,0),
+      radius = 0.4,
+      range = 10
+    },
+    {
+      type = 'sphere',
+      position = Vec(0,-0.5,2),
+      value = Vec(0,0,1),
+      radius = 0.4,
+      range = 10
+    }
+}
+
+local TypeId =
+{
+    ambient     = 0,
+    directional = 1,
+    sphere      = 2,
+    tube        = 3,
+    spot        = 4
+}
+
+local function SetupLight( target, index )
+    local light = Lights[index]
+
+    target:setUniform(string.format('LightType[%d]', index-1),
+                      TypeId[light.type], 'int')
+    target:setUniform(string.format('LightPositionWS[%d]', index-1),
+                      light.position)
+    target:setUniform(string.format('LightValue[%d]', index-1),
+                      light.value)
+    target:setUniform(string.format('LightRadius[%d]', index-1),
+                      light.radius, 'float')
+    target:setUniform(string.format('LightRange[%d]', index-1),
+                      light.range, 'float')
+end
+
+local function SetupLights( target )
+    target:setUniform('LightCount', #Lights, 'int')
+    for i = 1, #Lights do
+        SetupLight(target, i)
+    end
+end
+
 local function CreateUniformChart( modelWorld )
     local xcount = 5
     local ycount = 1
@@ -43,6 +101,7 @@ local function CreateUniformChart( modelWorld )
         model:setTransformation(Mat4():translate(position))
         model:setUniform('Roughness', x/xcount, 'float')
         model:setUniform('Metallic',  y/ycount, 'float')
+        SetupLights(model)
     end
     end
 end

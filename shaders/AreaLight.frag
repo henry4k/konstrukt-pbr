@@ -1,11 +1,11 @@
-#version 150
+#version 120
 
-//in float PlaneOffsetDotNormal;
-in vec3 PositionTS;
-in vec3 PlaneOriginTS;
-in vec3 PlaneTangentTS;
-in vec3 PlaneBitangentTS;
-in vec3 PlaneNormalTS;
+//varying float PlaneOffsetDotNormal;
+varying vec3 PositionTS;
+varying vec3 PlaneOriginTS;
+varying vec3 PlaneTangentTS;
+varying vec3 PlaneBitangentTS;
+varying vec3 PlaneNormalTS;
 
 const vec2 LightSize = vec2(2, 1);
 

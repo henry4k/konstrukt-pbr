@@ -1,23 +1,25 @@
-#version 150
+#version 120
 
-float T( float m );
+float CalcDistanceAttenuation( const in float lightDistance,
+                               const in float maxLightDistance ); // from DistanceAttenuation.frag
 
-in vec3 LightPositionTS;
-
-const float LightRadius = 0.4;
-
-vec3 CalcSphereLight( const in vec3 normal,
-                      const in vec3 cameraDirectionTS,
-                      out float dist,
-                      out float radius )
+void CalcSphereLight( out vec3 lightDirection,
+                      out float NdotL,
+                      out float attenuation,
+                      const in vec3 normal,
+                      const in vec3 reflection,
+                      const in vec3 lightPosition,
+                      const in float lightRadius,
+                      const in float lightRange )
 {
-    dist = length(LightPositionTS);
-    float LightRadius = mix(0.01, 1, T(0.5));
-    radius = LightRadius;
+    vec3 centerToRay = dot(lightPosition, reflection) * reflection - lightPosition;
+    vec3 closestPoint = lightPosition + centerToRay *
+                        clamp(lightRadius/length(centerToRay), 0, 1);
+    lightDirection = normalize(closestPoint);
 
-    vec3 reflection = reflect(-cameraDirectionTS, normal);
-    vec3 centerToRay = dot(LightPositionTS, reflection) * reflection - LightPositionTS;
-    vec3 closestPoint = LightPositionTS + centerToRay *
-                        clamp(LightRadius/length(centerToRay), 0, 1);
-    return normalize(closestPoint);
+    NdotL = max(dot(normal, lightDirection), 0);
+
+    float distanceAttenuation =
+        CalcDistanceAttenuation(length(closestPoint), lightRange);
+    attenuation = NdotL * distanceAttenuation;
 }

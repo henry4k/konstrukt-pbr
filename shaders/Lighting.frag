@@ -1,13 +1,4 @@
-#version 150
-
-float T( float m );
-
-vec3 CalcSphereLight( const in vec3 normal,
-                      const in vec3 cameraDirectionTS,
-                      out float dist,
-                      out float radius ); // from SphereLight.frag
-
-float GetDistanceAttenuation( const in float lightDistance ); // from DistanceAttenuation.frag
+#version 120
 
 vec3 CalcSpecularReflection( const in vec3 specularFactor,
                              const in float roughness,
@@ -22,12 +13,43 @@ vec3 CalcDiffuseReflection( const in vec3 diffuseFactor,
                             const in float NdotV,
                             const in float VdotH ); // from Diffuse.frag
 
-in vec3 CameraDirectionTS;
+void CalcSphereLight( out vec3 lightDirection,
+                      out float NdotL,
+                      out float attenuation,
+                      const in vec3 normal,
+                      const in vec3 reflection,
+                      const in vec3 lightPosition,
+                      const in float lightRadius,
+                      const in float lightRange ); // from SphereLight.frag
+
+vec3 CalcReflectedLight( const in vec3 normal,
+                         const in vec3 specularFactor,
+                         const in vec3 diffuseFactor,
+                         const in float roughness,
+                         const in vec3 cameraDirectionTS,
+                         const in vec3 lightDirectionTS,
+                         const in float NdotL,
+                         const in float NdotV );
 
 
-const float PI = 3.14159;
-const float LightLuminousPower = 12;
-const vec3 LightColor = normalize(vec3(1, 1, 3));
+const int AmbientLightType     = 0;
+const int DirectionalLightType = 1;
+const int SphereLightType      = 2;
+const int TubeLightType        = 3;
+const int SpotLightType        = 4;
+
+const int MaxLightCount = 4;
+
+
+uniform int LightCount;
+uniform int   LightType  [MaxLightCount];
+uniform vec3  LightValue [MaxLightCount];
+uniform float LightRadius[MaxLightCount];
+uniform float LightRange [MaxLightCount];
+
+
+varying vec3 LightPositionTS[MaxLightCount];
+varying vec3 CameraDirectionTS;
 
 
 /**
@@ -45,75 +67,82 @@ const vec3 LightColor = normalize(vec3(1, 1, 3));
  * Affects the scattering of light reflected by the surface.
  * (Penetrating light rays are hardly influenced by this.)
  */
-vec3 CalcLightContribution( const in vec3 normal_,
-                            const in vec3 specularFactor,
-                            const in vec3 diffuseFactor,
-                            const in float roughness_ )
+vec3 CalcIlluminance( const in vec3 normal_,
+                      const in vec3 specularFactor,
+                      const in vec3 diffuseFactor,
+                      const in float roughness_ )
 {
     vec3 normal = normalize(normal_);
     vec3 cameraDirectionTS = normalize(CameraDirectionTS);
+    vec3 reflection = reflect(-cameraDirectionTS, normal);
+    float roughness = max(roughness_, 0.02);
+    float NdotV = max(0, dot(normal, cameraDirectionTS));
 
-    float dist;
-    float radius;
-    vec3 lightDirectionTS = CalcSphereLight(normal, cameraDirectionTS, dist, radius);
+    vec3 outgoingIlluminance = vec3(0);
 
-    // do the lighting calculation for each fragment.
-    float NdotL = max(dot(normal, lightDirectionTS), 0);
-
-    if(NdotL > 0)
+    for(int i = 0; i < LightCount; i++)
     {
-        float roughness = max(roughness_, 0.02);
+        vec3 lightDirectionTS;
+        float NdotL;
+        float attenuation;
 
-        // calculate intermediary values
-        vec3 halfWayDirectionTS = normalize(cameraDirectionTS + lightDirectionTS);
-        float NdotH = max(0, dot(normal, halfWayDirectionTS));
-        float NdotV = max(0, dot(normal, cameraDirectionTS));
-        float VdotH = dot(cameraDirectionTS, halfWayDirectionTS);
+        if(LightType[i] == SphereLightType)
+            CalcSphereLight(lightDirectionTS,
+                            NdotL,
+                            attenuation,
+                            normal,
+                            reflection,
+                            LightPositionTS[i],
+                            LightRadius[i],
+                            LightRange[i]);
 
-        vec3 specularReflection = CalcSpecularReflection(specularFactor,
-                                                         roughness,
-                                                         NdotL,
-                                                         NdotH,
-                                                         NdotV,
-                                                         VdotH);
-        //float r2 = roughness * roughness;
-        //float ggxNormalization = 1.0 / (PI*r2*r2);
-        //specularReflection *= ggxNormalization;
-
-        // diffuse reflection:
-        // In order for light to be diffused, light must first penetrate the
-        // surface:  This is easy to enforce in a shading system: one simply
-        // subtracts reflected light before allowing the diffuse shading to occur.
-        vec3 diffuseReflection = CalcDiffuseReflection(diffuseFactor,
-                                                       roughness,
-                                                       NdotL,
-                                                       NdotV,
-                                                       VdotH);
-        diffuseReflection *= (1 - specularFactor);
-        diffuseReflection *= 1.0 / PI; // normalization factor (for lambert diffuse)
-
-        vec3 reflectedLight = diffuseReflection + specularReflection;
-
-        // testing zone:
-        //float LightLuminousPower = mix(0, 12, T(0.5));
-
-        float formFactor = ((radius*radius) / (dist*dist)) * NdotL;
-        float incidentLuminance = LightLuminousPower / (4.0 * PI*PI * radius*radius);
-        float illuminance = incidentLuminance*PI*formFactor;
-
-        float incidentLight = LightLuminousPower / (4.0*PI);
-        incidentLight *= NdotL;
-        incidentLight *= GetDistanceAttenuation(dist);
-
-        vec3 outgoingLuminance = LightColor * reflectedLight *
-            mix(incidentLight, illuminance, round(T(4)));
-        return pow(outgoingLuminance, vec3(1.0/2.2));
+        if(attenuation > 0)
+        {
+            outgoingIlluminance += LightValue[i] * attenuation *
+                                   CalcReflectedLight(normal,
+                                                      specularFactor,
+                                                      diffuseFactor,
+                                                      roughness,
+                                                      cameraDirectionTS,
+                                                      lightDirectionTS,
+                                                      NdotL,
+                                                      NdotV);
+        }
     }
-    else
-    {
-        return vec3(0);
-    }
+
+    return outgoingIlluminance;
 }
+
+vec3 CalcReflectedLight( const in vec3 normal,
+                         const in vec3 specularFactor,
+                         const in vec3 diffuseFactor,
+                         const in float roughness,
+                         const in vec3 cameraDirectionTS,
+                         const in vec3 lightDirectionTS,
+                         const in float NdotL,
+                         const in float NdotV )
+{
+    vec3 halfWayDirectionTS = normalize(cameraDirectionTS + lightDirectionTS);
+    float NdotH = max(0, dot(normal, halfWayDirectionTS));
+    float VdotH = dot(cameraDirectionTS, halfWayDirectionTS);
+
+    vec3 diffuseReflection = CalcDiffuseReflection(diffuseFactor,
+                                                   roughness,
+                                                   NdotL,
+                                                   NdotV,
+                                                   VdotH);
+
+    vec3 specularReflection = CalcSpecularReflection(specularFactor,
+                                                     roughness,
+                                                     NdotL,
+                                                     NdotH,
+                                                     NdotV,
+                                                     VdotH);
+
+    return diffuseReflection * (1 - specularFactor) +
+           specularReflection;
+}
+
 
 const vec3 NonMetallicSpecularFactor = vec3(0.04);
 const vec3 MetallicDiffuseFactor     = vec3(0);
@@ -130,19 +159,16 @@ uniform float Roughness;
  * 0: diffuse = color, specular = 0.04 (linear)
  * 1: diffuse = 0,     specular = color
  */
-vec3 CalcLightContributionMetallic( const in vec3 normal,
-                                    const in vec3 color,
-                                    const in float roughness_,
-                                    const in float metallic_ )
+vec3 CalcIlluminanceMetallic( const in vec3 normal,
+                              const in vec3 color,
+                              const in float roughness_,
+                              const in float metallic_ )
 {
-    //float metallic = metallic_;
-    //float roughness = roughness_;
-
-    float metallic = Metallic;
     float roughness = Roughness;
+    float metallic = Metallic;
 
     vec3 specularFactor = mix(NonMetallicSpecularFactor, color, metallic);
     // TODO: f0 = 0.16 reflectance² (1 − metallic) + color metallic
     vec3 diffuseFactor  = mix(    color, MetallicDiffuseFactor, metallic);
-    return CalcLightContribution(normal, specularFactor, diffuseFactor, roughness);
+    return CalcIlluminance(normal, specularFactor, diffuseFactor, roughness);
 }
