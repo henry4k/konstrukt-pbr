@@ -15,7 +15,7 @@ vec3 CalcDiffuseReflection( const in vec3 diffuseFactor,
 
 void CalcSphereLight( out vec3 lightDirection,
                       out float NdotL,
-                      out float attenuation,
+                      out float incidentLuminanceFactor,
                       const in vec3 normal,
                       const in vec3 reflection,
                       const in vec3 lightPosition,
@@ -84,21 +84,21 @@ vec3 CalcIlluminance( const in vec3 normal_,
     {
         vec3 lightDirectionTS;
         float NdotL;
-        float attenuation;
+        float incidentLuminanceFactor;
 
         if(LightType[i] == SphereLightType)
             CalcSphereLight(lightDirectionTS,
                             NdotL,
-                            attenuation,
+                            incidentLuminanceFactor,
                             normal,
                             reflection,
                             LightPositionTS[i],
                             LightRadius[i],
                             LightRange[i]);
 
-        if(attenuation > 0)
+        if(incidentLuminanceFactor > 0)
         {
-            outgoingIlluminance += LightValue[i] * attenuation *
+            outgoingIlluminance += LightValue[i] * incidentLuminanceFactor *
                                    CalcReflectedLight(normal,
                                                       specularFactor,
                                                       diffuseFactor,
@@ -164,8 +164,8 @@ vec3 CalcIlluminanceMetallic( const in vec3 normal,
                               const in float roughness_,
                               const in float metallic_ )
 {
-    float roughness = Roughness;
-    float metallic = Metallic;
+    float roughness = 1.0;
+    float metallic = 0.0;
 
     vec3 specularFactor = mix(NonMetallicSpecularFactor, color, metallic);
     // TODO: f0 = 0.16 reflectance² (1 − metallic) + color metallic

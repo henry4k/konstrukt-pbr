@@ -1,11 +1,13 @@
 #version 120
 
+const float PI = 3.14159;
+
 float CalcDistanceAttenuation( const in float lightDistance,
                                const in float maxLightDistance ); // from DistanceAttenuation.frag
 
 void CalcSphereLight( out vec3 lightDirection,
                       out float NdotL,
-                      out float attenuation,
+                      out float incidentLuminanceFactor,
                       const in vec3 normal,
                       const in vec3 reflection,
                       const in vec3 lightPosition,
@@ -19,7 +21,16 @@ void CalcSphereLight( out vec3 lightDirection,
 
     NdotL = max(dot(normal, lightDirection), 0);
 
+    float dist = length(lightPosition);
+
+    // From Frostbite:
+    //float formFactor = ((lightRadius*lightRadius) / (dist*dist)) * NdotL;
+    //float bla = 1.0 / (4.0 * PI*PI *  lightRadius*lightRadius);
+    //incidentLuminanceFactor = bla*PI*formFactor;
+
+    // From Unreal Engine 4:
     float distanceAttenuation =
-        CalcDistanceAttenuation(length(closestPoint), lightRange);
-    attenuation = NdotL * distanceAttenuation;
+        CalcDistanceAttenuation(dist, lightRange);
+    incidentLuminanceFactor =
+        NdotL * distanceAttenuation * (1.0 / (4.0*PI));
 }
