@@ -1,7 +1,5 @@
-local engine     = require 'engine'
 local Vec        = require 'core/Vector'
 local Mat4       = require 'core/Matrix4'
-local Timer      = require 'core/Timer'
 local Control    = require 'core/Control'
 --local GlobalControls = require 'core/GlobalControls'
 local SetupUtils = require 'base-game/SetupUtils'
@@ -39,24 +37,24 @@ local Lights =
 {
     {
       type = 'sphere',
-      position = Vec(-1,0.5,2),
-      value = Vec(1,0,0),
-      radius = 0.4,
-      range = 10
+      position = Vec(0,0,2),
+      value = Vec(1,1,1)*100,
+      radius = 0.1,
+      range = 100
     },
     {
-      type = 'sphere',
-      position = Vec(1,0.5,2),
-      value = Vec(0,1,0),
-      radius = 0.4,
-      range = 10
+      type = 'directional',
+      position = Vec(0,1,0),
+      value = Vec(1,1,0)*1,
+      radius = 0.0094,
+      range = 0
     },
     {
-      type = 'sphere',
-      position = Vec(0,-0.5,2),
-      value = Vec(0,0,1),
-      radius = 0.4,
-      range = 10
+      type = 'directional',
+      position = Vec(0,0,1),
+      value = Vec(1,1,1)*0.01,
+      radius = math.deg(100),
+      range = 0
     }
 }
 

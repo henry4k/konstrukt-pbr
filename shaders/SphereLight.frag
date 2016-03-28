@@ -1,6 +1,6 @@
 #version 120
 
-const float PI = 3.14159;
+const float PI = 3.14159265358979323846;
 
 float CalcDistanceAttenuation( const in float lightDistance,
                                const in float maxLightDistance ); // from DistanceAttenuation.frag

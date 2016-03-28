@@ -1,6 +1,6 @@
 #version 120
 
-const float PI = 3.14159;
+const float PI = 3.14159265358979323846;
 
 float pow2( const in float v )
 {
@@ -53,13 +53,13 @@ float Distribution( const in float roughness,
                     const in float NdotH )
 {
     // GGX/Trowbridge-Reitz:
-    float r4 = roughness * roughness * roughness * roughness;
-    return r4 / (PI * pow2(pow2(NdotH)*(r4-1.0)+1.0));
+    //float r4 = roughness * roughness * roughness * roughness;
+    //return r4 / (PI * pow2(pow2(NdotH)*(r4-1.0)+1.0));
 
     // GGX (from Frostbite):
-    //float r2 = roughness * roughness;
-    //float f = (NdotH * r2 - NdotH) * NdotH + 1;
-    //return (r2 / (f*f))/PI;
+    float r2 = roughness * roughness;
+    float f = (NdotH * r2 - NdotH) * NdotH + 1;
+    return (r2 / (f*f))/PI;
 
     // Blinn-Phong (from BlackOps):
     //float a = pow(8192, 1-roughness);

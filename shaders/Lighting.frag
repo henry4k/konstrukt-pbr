@@ -13,6 +13,14 @@ vec3 CalcDiffuseReflection( const in vec3 diffuseFactor,
                             const in float NdotV,
                             const in float VdotH ); // from Diffuse.frag
 
+void CalcDirectionalLight( out vec3 lightDirection,
+                           out float NdotL,
+                           out float incidentLuminanceFactor,
+                           const in vec3 normal,
+                           const in vec3 reflection,
+                           const in vec3 lightDirectionIn,
+                           const in float lightRadius ); // from DirectionalLight.frag
+
 void CalcSphereLight( out vec3 lightDirection,
                       out float NdotL,
                       out float incidentLuminanceFactor,
@@ -86,7 +94,15 @@ vec3 CalcIlluminance( const in vec3 normal_,
         float NdotL;
         float incidentLuminanceFactor;
 
-        if(LightType[i] == SphereLightType)
+        if(LightType[i] == DirectionalLightType)
+            CalcDirectionalLight(lightDirectionTS,
+                                 NdotL,
+                                 incidentLuminanceFactor,
+                                 normal,
+                                 reflection,
+                                 LightPositionTS[i],
+                                 LightRadius[i]);
+        else if(LightType[i] == SphereLightType)
             CalcSphereLight(lightDirectionTS,
                             NdotL,
                             incidentLuminanceFactor,
@@ -164,11 +180,17 @@ vec3 CalcIlluminanceMetallic( const in vec3 normal,
                               const in float roughness_,
                               const in float metallic_ )
 {
-    float roughness = 1.0;
-    float metallic = 0.0;
+    float roughness = Roughness;
+    float metallic = Metallic;
 
+    // From Unreal Engine 4:
     vec3 specularFactor = mix(NonMetallicSpecularFactor, color, metallic);
-    // TODO: f0 = 0.16 reflectance² (1 − metallic) + color metallic
     vec3 diffuseFactor  = mix(    color, MetallicDiffuseFactor, metallic);
+
+    // Disney:
+    //float reflectance = 1-roughness;
+    //vec3 specularFactor = 0.16 * reflectance*reflectance * (1-metallic) + color * metallic;
+    //vec3 diffuseFactor = (1-metallic) * color;
+
     return CalcIlluminance(normal, specularFactor, diffuseFactor, roughness);
 }

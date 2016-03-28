@@ -1,5 +1,9 @@
 #version 120
 
+void CalcDirectionalLight( out vec3 lightDirectionTS,
+                           const in vec3 lightDirectionWS,
+                           const in mat3 csToTS ); // from DirectionalLight.vert
+
 void CalcSphereLight( out vec3 lightPositionTS,
                       const in vec3 lightPositionWS,
                       const in mat3 csToTS ); // from SphereLight.vert
@@ -48,7 +52,11 @@ void CalcLight()
 
     for(int i = 0; i < LightCount; i++)
     {
-        if(LightType[i] == SphereLightType)
+        if(LightType[i] == DirectionalLightType)
+            CalcDirectionalLight(LightPositionTS[i],
+                                 LightPositionWS[i],
+                                 csToTS);
+        else if(LightType[i] == SphereLightType)
             CalcSphereLight(LightPositionTS[i],
                             LightPositionWS[i],
                             csToTS);
