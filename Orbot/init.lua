@@ -14,14 +14,10 @@ function Orbot:initialize( modelWorld )
     self.model = modelWorld:createModel('world')
     self.model:setMesh(mesh)
     self.model:setProgramFamily('brdf')
-    self.model:setTexture(0, normal)
-    self.model:setTexture(1, color)
-    self.model:setTexture(2, roughness)
-    self.model:setTexture(3, metallic)
-    self.model:setUniform('NormalSampler',    0, 'int')
-    self.model:setUniform('ColorSampler',     1, 'int')
-    self.model:setUniform('RoughnessSampler', 2, 'int')
-    self.model:setUniform('MetallicSampler',  3, 'int')
+    self.model.shaderVariables:set('NormalSampler',    normal)
+    self.model.shaderVariables:set('ColorSampler',     color)
+    self.model.shaderVariables:set('RoughnessSampler', roughness)
+    self.model.shaderVariables:set('MetallicSampler',  metallic)
 end
 
 return Orbot

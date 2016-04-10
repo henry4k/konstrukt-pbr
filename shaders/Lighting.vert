@@ -1,4 +1,4 @@
-#version 120
+#version 150
 
 void CalcDirectionalLight( out vec3 lightDirectionTS,
                            const in vec3 lightDirectionWS,
@@ -25,14 +25,14 @@ uniform int  LightType[MaxLightCount];
 uniform vec3 LightPositionWS[MaxLightCount];
 
 
-attribute vec3 VertexPosition;
-attribute vec3 VertexNormal;
-attribute vec3 VertexTangent;
-attribute vec3 VertexBitangent;
+in vec3 VertexPosition;
+in vec3 VertexNormal;
+in vec3 VertexTangent;
+in vec3 VertexBitangent;
 
 
-varying vec3 LightPositionTS[MaxLightCount];
-varying vec3 CameraDirectionTS;
+out vec3 LightPositionTS[MaxLightCount];
+out vec3 CameraDirectionTS;
 
 
 void CalcLight()
@@ -52,13 +52,16 @@ void CalcLight()
 
     for(int i = 0; i < LightCount; i++)
     {
-        if(LightType[i] == DirectionalLightType)
-            CalcDirectionalLight(LightPositionTS[i],
-                                 LightPositionWS[i],
-                                 csToTS);
-        else if(LightType[i] == SphereLightType)
-            CalcSphereLight(LightPositionTS[i],
-                            LightPositionWS[i],
-                            csToTS);
+        switch(LightType[i])
+        {
+            case DirectionalLightType:
+                CalcDirectionalLight(LightPositionTS[i],
+                                     LightPositionWS[i],
+                                     csToTS);
+            case SphereLightType:
+                CalcSphereLight(LightPositionTS[i],
+                                LightPositionWS[i],
+                                csToTS);
+        }
     }
 }

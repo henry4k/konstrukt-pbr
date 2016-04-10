@@ -1,11 +1,11 @@
-#version 120
+#version 150
 
-//varying float PlaneOffsetDotNormal;
-varying vec3 PositionTS;
-varying vec3 PlaneOriginTS;
-varying vec3 PlaneTangentTS;
-varying vec3 PlaneBitangentTS;
-varying vec3 PlaneNormalTS;
+//in float PlaneOffsetDotNormal;
+in vec3 PositionTS;
+in vec3 PlaneOriginTS;
+in vec3 PlaneTangentTS;
+in vec3 PlaneBitangentTS;
+in vec3 PlaneNormalTS;
 
 const vec2 LightSize = vec2(2, 1);
 
@@ -57,7 +57,7 @@ vec3 GetAreaLightColor( vec3 direction )
     */
     vec2 uv;
     if(TryGetAreaUV(direction, uv))
-        return texture2D(LightSampler, uv).rgb;
+        return texture(LightSampler, uv).rgb;
     else
         return vec3(0, 0, 0);
 }

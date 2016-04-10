@@ -1,12 +1,12 @@
-#version 120
+#version 150
 
-attribute vec3 VertexNormal;
-attribute vec3 VertexTangent;
-attribute vec3 VertexBitangent;
+in vec3 VertexNormal;
+in vec3 VertexTangent;
+in vec3 VertexBitangent;
 
-varying vec3 TangentWS;
-varying vec3 BitangentWS;
-varying vec3 NormalWS;
+out vec3 TangentWS;
+out vec3 BitangentWS;
+out vec3 NormalWS;
 
 uniform mat4 Model;
 

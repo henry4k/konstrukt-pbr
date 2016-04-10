@@ -1,4 +1,4 @@
-#version 120
+#version 150
 
 vec3 CalcSpecularReflection( const in vec3 specularFactor,
                              const in float roughness,
@@ -12,6 +12,11 @@ vec3 CalcDiffuseReflection( const in vec3 diffuseFactor,
                             const in float NdotL,
                             const in float NdotV,
                             const in float VdotH ); // from Diffuse.frag
+
+vec3 CalcAmbientIlluminance( const vec3 diffuseFactor,
+                             const vec3 specularFactor,
+                             const in float roughness,
+                             const in float NdotV ); // from AmbientLight.frag
 
 void CalcDirectionalLight( out vec3 lightDirection,
                            out float NdotL,
@@ -56,8 +61,8 @@ uniform float LightRadius[MaxLightCount];
 uniform float LightRange [MaxLightCount];
 
 
-varying vec3 LightPositionTS[MaxLightCount];
-varying vec3 CameraDirectionTS;
+in vec3 LightPositionTS[MaxLightCount];
+in vec3 CameraDirectionTS;
 
 
 /**
@@ -86,7 +91,10 @@ vec3 CalcIlluminance( const in vec3 normal_,
     float roughness = max(roughness_, 0.02);
     float NdotV = max(0, dot(normal, cameraDirectionTS));
 
-    vec3 outgoingIlluminance = vec3(0);
+    vec3 outgoingIlluminance = CalcAmbientIlluminance(diffuseFactor,
+                                                      specularFactor,
+                                                      roughness,
+                                                      NdotV);
 
     for(int i = 0; i < LightCount; i++)
     {
@@ -94,23 +102,26 @@ vec3 CalcIlluminance( const in vec3 normal_,
         float NdotL;
         float incidentLuminanceFactor;
 
-        if(LightType[i] == DirectionalLightType)
-            CalcDirectionalLight(lightDirectionTS,
-                                 NdotL,
-                                 incidentLuminanceFactor,
-                                 normal,
-                                 reflection,
-                                 LightPositionTS[i],
-                                 LightRadius[i]);
-        else if(LightType[i] == SphereLightType)
-            CalcSphereLight(lightDirectionTS,
-                            NdotL,
-                            incidentLuminanceFactor,
-                            normal,
-                            reflection,
-                            LightPositionTS[i],
-                            LightRadius[i],
-                            LightRange[i]);
+        switch(LightType[i])
+        {
+            case DirectionalLightType:
+                CalcDirectionalLight(lightDirectionTS,
+                                     NdotL,
+                                     incidentLuminanceFactor,
+                                     normal,
+                                     reflection,
+                                     LightPositionTS[i],
+                                     LightRadius[i]);
+            case SphereLightType:
+                CalcSphereLight(lightDirectionTS,
+                                NdotL,
+                                incidentLuminanceFactor,
+                                normal,
+                                reflection,
+                                LightPositionTS[i],
+                                LightRadius[i],
+                                LightRange[i]);
+        }
 
         if(incidentLuminanceFactor > 0)
         {
@@ -182,6 +193,8 @@ vec3 CalcIlluminanceMetallic( const in vec3 normal,
 {
     float roughness = Roughness;
     float metallic = Metallic;
+    //float roughness = roughness_;
+    //float metallic = metallic_;
 
     // From Unreal Engine 4:
     vec3 specularFactor = mix(NonMetallicSpecularFactor, color, metallic);

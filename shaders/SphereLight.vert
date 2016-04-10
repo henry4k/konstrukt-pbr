@@ -1,10 +1,10 @@
-#version 120
+#version 150
 
 uniform mat4 View;
 uniform mat4 Model;
 
 
-attribute vec3 VertexPosition;
+in vec3 VertexPosition;
 
 
 void CalcSphereLight( out vec3 lightPositionTS,

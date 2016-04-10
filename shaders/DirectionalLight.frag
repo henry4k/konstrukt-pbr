@@ -1,4 +1,4 @@
-#version 120
+#version 150
 
 void CalcDirectionalLight( out vec3 lightDirection,
                            out float NdotL,

@@ -1,9 +1,9 @@
-#version 120
+#version 150
 
 uniform mat4 View;
 
 
-attribute vec3 VertexPosition;
+in vec3 VertexPosition;
 
 
 void CalcDirectionalLight( out vec3 lightDirectionTS,
