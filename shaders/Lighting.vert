@@ -58,10 +58,12 @@ void CalcLight()
                 CalcDirectionalLight(LightPositionTS[i],
                                      LightPositionWS[i],
                                      csToTS);
+                break;
             case SphereLightType:
                 CalcSphereLight(LightPositionTS[i],
                                 LightPositionWS[i],
                                 csToTS);
+                break;
         }
     }
 }

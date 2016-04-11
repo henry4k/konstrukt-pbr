@@ -6,9 +6,11 @@ NAME = pbr
 ARCHIVE_CONTENTS += README.md
 ARCHIVE_CONTENTS += LICENSE
 ARCHIVE_CONTENTS += meta.json
+ARCHIVE_CONTENTS += AmbientBrdfLut.png
 ARCHIVE_CONTENTS += $(call rwildcard,'*.lua')
 ARCHIVE_CONTENTS += $(call rwildcard,'*.vert')
 ARCHIVE_CONTENTS += $(call rwildcard,'*.frag')
+ARCHIVE_CONTENTS += $(call rwildcard,'*.png')
 
 XCF_FILES = $(call rwildcard,'*.xcf')
 GENERATED_CONTENTS += $(patsubst %.xcf,%.png,$(XCF_FILES))

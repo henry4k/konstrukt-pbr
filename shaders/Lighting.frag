@@ -112,6 +112,7 @@ vec3 CalcIlluminance( const in vec3 normal_,
                                      reflection,
                                      LightPositionTS[i],
                                      LightRadius[i]);
+                break;
             case SphereLightType:
                 CalcSphereLight(lightDirectionTS,
                                 NdotL,
@@ -121,6 +122,7 @@ vec3 CalcIlluminance( const in vec3 normal_,
                                 LightPositionTS[i],
                                 LightRadius[i],
                                 LightRange[i]);
+                break;
         }
 
         if(incidentLuminanceFactor > 0)

@@ -26,11 +26,11 @@ end
 function PbrLight:setValue( value )
     assert(Vec:isInstance(value) and #value == 3, 'Must be a 3D vector.')
     self.shaderVariables:set('LightValue', value)
-    self:_setValue(value:length())
+    Light.setValue(self, value:length())
 end
 
 function PbrLight:setRange( range )
-    self:_setRange(range)
+    Light.setRange(self, range)
     self.shaderVariables:set('LightRange', range)
 end
 

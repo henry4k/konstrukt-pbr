@@ -64,11 +64,20 @@ local function start()
     local lightWorld = camera:getLightWorld()
     CreateUniformChart(modelWorld)
 
-    local light = lightWorld:createLight('sphere')
-    light:setRadius(1)
-    light:setValue(Vec(1,1,1)*100)
-    light:setRange(999)
+    local ambient = Vec(122.731, 176.601, 271.599)/65535 -- calculated from skybox
+    lightWorld:setAmbientLightValue(ambient*2) -- brighten a little bit
+
+    local light = lightWorld:createLight('directional')
+    light:setRadius(math.rad(40))
+    light:setValue(Vec(0.5,0.5,1):normalize()*0.2)
+    light:setDirection(Vec(0,0,1))
+
+    light = lightWorld:createLight('sphere')
+    light:setRadius(0.3)
+    light:setValue(Vec(1,1,1)*60)
+    light:setRange(10)
     light:setAttachmentTarget(camera:getAttachmentTarget())
+
 end
 
 

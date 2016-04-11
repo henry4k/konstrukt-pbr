@@ -1,7 +1,8 @@
 local class = require 'middleclass'
 local Texture    = require 'core/graphics/Texture'
 local LightWorld = require 'core/graphics/LightWorld'
-local PbrSphereLight = require(here('SphereLight'))
+local DirectionalLight = require(here('DirectionalLight'))
+local SphereLight = require(here('SphereLight'))
 
 local AmbientBrdfLut = Texture:load{fileName=here('AmbientBrdfLut.png')}
 
@@ -10,11 +11,12 @@ local PbrLightWorld = class(here('LightWorld'), LightWorld)
 
 PbrLightWorld.static.lightTypes =
 {
-    sphere = PbrSphereLight
+    directional = DirectionalLight,
+    sphere      = SphereLight
 }
 
 function PbrLightWorld:initialize()
-    LightWorld.initialize(self, 'LightCount', 'LightPositionWS[%d]')
+    LightWorld.initialize(self, 'LightCount', 'LightPositionWS')
     self:setMaxActiveLightCount(4)
     self.shaderVariables:set('AmbientBrdfLutSampler', AmbientBrdfLut)
     self:setAmbientLightValue(0)
