@@ -1,7 +1,10 @@
 {
+   "name": "pbr",
+   "version": "0.0.0",
+   "description": "Provides a physical based rendering system.",
    "type": "scenario",
    "dependencies":
-   [
-       "base-game"
-   ]
+   {
+      "base-game": "*"
+   }
 }

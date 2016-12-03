@@ -1,12 +1,9 @@
 include config.mk
 include $(BUILD_TOOLS)/tools.mk
 
-NAME = pbr
-
 ARCHIVE_CONTENTS += README.md
 ARCHIVE_CONTENTS += LICENSE
-ARCHIVE_CONTENTS += meta.json
-ARCHIVE_CONTENTS += AmbientBrdfLut.png
+ARCHIVE_CONTENTS += package.json
 ARCHIVE_CONTENTS += $(call rwildcard,'*.lua')
 ARCHIVE_CONTENTS += $(call rwildcard,'*.vert')
 ARCHIVE_CONTENTS += $(call rwildcard,'*.frag')
